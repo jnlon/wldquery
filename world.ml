@@ -57,107 +57,6 @@ let read_string fd =
   single_read fd len
 ;;
 
-(* Load tile data *)
-let load_wld_tiles fd wld_header = 
-  Log.infoln "Loading tiles...";
-  let max_x = Util.int_of_bytes (List.assoc "max_tiles_x" wld_header) in
-  let max_y = Util.int_of_bytes (List.assoc "max_tiles_y" wld_header) in
-  let importance = Util.bool_array_of_bits (List.assoc "importance" wld_header) in
-
-  let read_wld_tile () =
-    let tilebuf = Buffer.create 0 in
-    let bit_on bts n = ((int_of_char (Bytes.get bts 0)) land n) = n in
-    let add_n_bytes n = let b = (single_read fd n) in Buffer.add_bytes tilebuf b ; b in
-    let add_byte () = add_n_bytes 1 in
-    let add_int16 () = add_n_bytes 2 in
-    let add_int32 () = add_n_bytes 4 in
-
-    let b3 = add_byte () in
-    let b2 = if (bit_on b3 1) then add_byte () else Bytes.make 1 '\000' in
-    let b = if (bit_on b2 1) then add_byte () else Bytes.make 1 '\000' in
-
-    let tile_id = begin
-      if (bit_on b3 2) then begin (* If active tile *)
-        let num2 = (* Tile ID *)
-          (Util.int_of_bytes (if (bit_on b3 32) then add_int16 () else add_byte ()))
-        in
-
-        if importance.(num2) then ignore(add_int32 ()) (* texture coordinates *)
-        else ();
-
-        if bit_on b 8 then ignore(add_byte ()) else (); (* Tile color *)
-        num2 (* <-- type of tile *)
-      end 
-        else -1 (* No tile here *)
-    end
-    in
-
-    if bit_on b3 4 then begin
-      ignore(add_byte ()); (* wall type *)
-      if bit_on b 16 then ignore(add_byte ()) else (); (* wall color *)
-    end else ();
-
-    let b4 = ((Util.byte_at b3 0) land 24) lsr 3 in
-    if b4 != 0 then ignore(add_byte ()) else ();  (* Liquid type *)
-
-    let tile_id = match b4 with  (* treat liquid like a tile *)
-      | 1 -> 600      (* Water *)
-      | 2 -> 700      (* Lava *)
-      | 3 -> 800      (* Honey *)
-      | _ -> tile_id  (* no liquid *)
-    in
-
-    let b4 = ((Util.byte_at b3 0) land 192) lsr 6 in
-
-    (* RLE count *)
-    let k =  
-      match b4 with
-        | 0 -> Bytes.make 1 '\000'
-        | 1 -> add_byte ()
-        | _ -> add_int16 () 
-    in
-
-    ( (Buffer.to_bytes tilebuf) , 
-      [ ("rle_length", (Util.int_of_bytes k)) ; ("tile_id", tile_id) ] )
-  in
-
-  (*let tiles = Array.make_matrix max_x max_y (Bytes.create 0) in*)
-  let tiles = Array.make_matrix max_y max_x '\000' in
-  for x=0 to (max_x-1) do
-    Log.printf Log.Info "Loading tile row %d/%d\n" (x+1) max_x;
-    (*Printf.printf "--> New X: %d (max_x = %d, max_y = %d)\n" x max_x max_y;*)
-    let rec for_every_y y =
-      if y >= max_y then ()
-      else begin
-        let tile_data = read_wld_tile () in 
-        let tile_bytes = fst tile_data in
-        let rle_count = List.assoc "rle_length" (snd tile_data) in
-        let tile_id = List.assoc "tile_id" (snd tile_data) in
-        let tile_char = Tiles.char_of_tile @@ Tiles.tile_of_id tile_id in
-
-        (* Log everything here *)
-        Log.printf Log.Debug 
-          "TID = %3d ; TCHR = %c ; K = %3d ; (y=%d,x=%d) ; BYTES = [%s\b]\n" 
-          tile_id tile_char rle_count y x (Log.int_string_of_bytes tile_bytes);
-
-        (* Set tile char at y,x *)
-        tiles.(y).(x) <- tile_char;
-
-        (* Copy tile data RLE times down *)
-        for y_with_rle=(y+1) to (y+rle_count) do 
-          tiles.(y_with_rle).(x) <- tile_char
-        done;
-
-        (* Continue down column *)
-        for_every_y (rle_count + y + 1)
-      end 
-    in
-    for_every_y 0;
-  done;
-  Log.infof " %d tiles\n" (max_y*max_x);
-  tiles
-;;
-
 (* Load header *)
 let load_wld_header fd = 
   let read num_bytes = single_read fd num_bytes in
@@ -327,13 +226,11 @@ let load_wld_header fd =
   header;
 ;;
 
-let wld_tiles_of_fd fd = 
+let wld_header_of_fd fd = 
   let header = load_wld_header fd in
   let version = Util.int_of_bytes @@ List.assoc "version" header in
-
   let _ = 
-    if (supported_wld_version = version) 
-    then ()
+    if (supported_wld_version = version) then ()
     else 
     begin
       let errstr = 
@@ -343,15 +240,14 @@ let wld_tiles_of_fd fd =
       raise (Wld_version_unsupported errstr)
     end
   in
-
-  load_wld_tiles fd header 
+  header
 ;;
 
-let wld_tiles_of_path pathstr = 
+let wld_header_of_path pathstr = 
   Log.noticef "Reading world file '%s'\n" pathstr;
   let open Unix in
   let fd = openfile pathstr [O_RDONLY] 0 in
-  let tiles = wld_tiles_of_fd fd in
+  let header = wld_header_of_fd fd in
   close fd;
-  tiles
+  header
 ;;
