@@ -57,6 +57,126 @@ let read_string fd =
   single_read fd len
 ;;
 
+let wld_header_read_seq = [
+   ("version", Int32); 
+   ("relogic", Int64);
+   ("revision", Int32);
+   ("favorite", Int64);
+   ("_num_position", Int16);
+   ("positions", Array (Int32, Static 10));
+   ("_num_importance", Int16);
+   ("importance", Array (Bool, Static 53));
+
+   ("world_name", String);
+   ("world_id", Int32);
+   ("left_world_boundary", Int32);
+   ("right_world_boundary", Int32);
+   ("top_world_boundary", Int32);
+   ("bottom_world_boundary", Int32);
+   ("max_tiles_y", Int32);
+   ("max_tiles_x", Int32);
+   ("expert_mode", Bool);
+   ("creation_time", Double);
+   ("moon_type", Byte);
+   ("tree_x", Array (Int32, Static 3)); (* size = 3 *)
+   ("tree_style", Array (Int32, Static 4)); (* size = 4 *)
+   ("cave_back_x", Array (Int32, Static 3)); (* size = 3 *)
+   ("cave_back_style", Array (Int32, Static 4)); (* size = 4 *)
+   ("ice_back_style", Int32);
+   ("jungle_back_style", Int32);
+   ("hell_back_style", Int32);
+   ("spawn_tile_x", Int32);
+   ("spawn_tile_y", Int32);
+   ("world_surface", Double);
+   ("rock_layer", Double);
+   ("temp_time", Double);
+   ("temp_day_time", Bool);
+   ("temp_moon_phase", Int32);
+   ("temp_blood_moon", Bool);
+   ("temp_eclipse", Bool);
+   ("dungeon_x", Int32);
+   ("dungeon_y", Int32);
+   ("crimson", Bool);
+
+   ("downed_boss_1", Bool);
+   ("downed_boss_2", Bool);
+   ("downed_boss_3", Bool);
+   ("downed_queen_bee", Bool);
+   ("downed_mech_boss_1", Bool);
+   ("downed_mech_boss_2", Bool);
+   ("downed_mech_boss_3", Bool);
+   ("downed_mech_boss_any", Bool);
+   ("downed_plant_boss", Bool);
+   ("downed_golem_boss", Bool);
+   ("downed_slime_king", Bool);
+   ("saved_goblin", Bool);
+   ("saved_wizard", Bool);
+   ("saved_mech", Bool);
+   ("downed_goblins", Bool);
+   ("downed_clown", Bool);
+   ("downed_frost", Bool);
+   ("downed_pirates", Bool);
+   ("shadow_orb_smashed", Bool);
+   ("spawn_meteor", Bool);
+   ("shadow_orb_count", Byte);
+   ("altar_count", Int32);
+   ("hard_mode", Bool);
+   ("invasion_delay", Int32);
+   ("invasion_size", Int32);
+   ("invasion_type", Int32);
+   ("invasion_x", Double);
+
+   ("slime_rain_time", Double);
+   ("sundial_cooldown", Byte);
+   ("temp_raining", Bool);
+   ("temp_rain_time", Int32);
+   ("temp_max_rain", Single);
+   ("ore_tier1", Int32);
+   ("ore_tier2", Int32);
+   ("ore_tier3", Int32);
+   ("tree_bg", Byte);
+   ("corrupt_bg", Byte);
+   ("jungle_bg", Byte);
+   ("snow_bg", Byte);
+   ("hallow_bg", Byte);
+   ("crimson_bg", Byte);
+   ("desert_bg", Byte);
+   ("ocean_bg", Byte);
+   ("cloud_bg_active", Int32);
+   ("num_clouds", Int16);
+   ("wind_speed", Single);
+   ("_num_angler_finished", Int32);
+   ("angler_who_finished_today", Array (String, Variable));
+   ("saved_angler", Bool);
+   ("angler_quest", Int32);
+   ("saved_stylist", Bool);
+   ("saved_tax_collector", Bool);
+   ("invasion_size_start", Int32);
+   ("temp_cultist_delay", Int32);
+   ("_num_npc_killed", Int16);
+   ("npc_kill_count", Array (Int32, Variable));
+   ("fast_forward_time", Bool);
+   ("downed_fishron", Bool);
+   ("downed_martians", Bool);
+   ("downed_ancient_cultist", Bool);
+   ("downed_moonlord", Bool);
+   ("downed_halloween_king", Bool);
+   ("downed_halloween_tree", Bool);
+   ("downed_christmas_ice_queen", Bool);
+   ("downed_christmas_santank", Bool);
+   ("downed_christmas_tree", Bool);
+
+   ("downed_tower_solar", Bool);
+   ("downed_tower_vortex", Bool);
+   ("downed_tower_nebula", Bool);
+   ("downed_tower_stardust", Bool);
+
+   ("tower_active_solar", Bool);
+   ("tower_active_vortex", Bool);
+   ("tower_active_nebula", Bool);
+   ("tower_active_stardust", Bool);
+   ("lunar_apocalypse_is_up", Bool) ] ;;
+
 (* Load header *)
 let load_wld_header fd = 
   let read num_bytes = single_read fd num_bytes in
@@ -94,127 +214,6 @@ let load_wld_header fd =
               read_header tl ((s,(read readsize)) :: bytelst)
           end
         end
-  in 
-
-  let wld_header_read_seq = [
-     ("version", Int32); 
-     ("relogic", Int64);
-     ("revision", Int32);
-     ("favorite", Int64);
-     ("_num_position", Int16);
-     ("positions", Array (Int32, Static 10));
-     ("_num_importance", Int16);
-     ("importance", Array (Bool, Static 53));
-
-     ("world_name", String);
-     ("world_id", Int32);
-     ("left_world_boundary", Int32);
-     ("right_world_boundary", Int32);
-     ("top_world_boundary", Int32);
-     ("bottom_world_boundary", Int32);
-     ("max_tiles_y", Int32);
-     ("max_tiles_x", Int32);
-     ("expert_mode", Bool);
-     ("creation_time", Double);
-     ("moon_type", Byte);
-     ("tree_x", Array (Int32, Static 3)); (* size = 3 *)
-     ("tree_style", Array (Int32, Static 4)); (* size = 4 *)
-     ("cave_back_x", Array (Int32, Static 3)); (* size = 3 *)
-     ("cave_back_style", Array (Int32, Static 4)); (* size = 4 *)
-     ("ice_back_style", Int32);
-     ("jungle_back_style", Int32);
-     ("hell_back_style", Int32);
-     ("spawn_tile_x", Int32);
-     ("spawn_tile_y", Int32);
-     ("world_surface", Double);
-     ("rock_layer", Double);
-     ("temp_time", Double);
-     ("temp_day_time", Bool);
-     ("temp_moon_phase", Int32);
-     ("temp_blood_moon", Bool);
-     ("temp_eclipse", Bool);
-     ("dungeon_x", Int32);
-     ("dungeon_y", Int32);
-     ("crimson", Bool);
-
-     ("downed_boss_1", Bool);
-     ("downed_boss_2", Bool);
-     ("downed_boss_3", Bool);
-     ("downed_queen_bee", Bool);
-     ("downed_mech_boss_1", Bool);
-     ("downed_mech_boss_2", Bool);
-     ("downed_mech_boss_3", Bool);
-     ("downed_mech_boss_any", Bool);
-     ("downed_plant_boss", Bool);
-     ("downed_golem_boss", Bool);
-     ("downed_slime_king", Bool);
-     ("saved_goblin", Bool);
-     ("saved_wizard", Bool);
-     ("saved_mech", Bool);
-     ("downed_goblins", Bool);
-     ("downed_clown", Bool);
-     ("downed_frost", Bool);
-     ("downed_pirates", Bool);
-     ("shadow_orb_smashed", Bool);
-     ("spawn_meteor", Bool);
-     ("shadow_orb_count", Byte);
-     ("altar_count", Int32);
-     ("hard_mode", Bool);
-     ("invasion_delay", Int32);
-     ("invasion_size", Int32);
-     ("invasion_type", Int32);
-     ("invasion_x", Double);
-
-     ("slime_rain_time", Double);
-     ("sundial_cooldown", Byte);
-     ("temp_raining", Bool);
-     ("temp_rain_time", Int32);
-     ("temp_max_rain", Single);
-     ("ore_tier1", Int32);
-     ("ore_tier2", Int32);
-     ("ore_tier3", Int32);
-     ("tree_bg", Byte);
-     ("corrupt_bg", Byte);
-     ("jungle_bg", Byte);
-     ("snow_bg", Byte);
-     ("hallow_bg", Byte);
-     ("crimson_bg", Byte);
-     ("desert_bg", Byte);
-     ("ocean_bg", Byte);
-     ("cloud_bg_active", Int32);
-     ("num_clouds", Int16);
-     ("wind_speed", Single);
-     ("_num_angler_finished", Int32);
-     ("angler_who_finished_today", Array (String, Variable));
-     ("saved_angler", Bool);
-     ("angler_quest", Int32);
-     ("saved_stylist", Bool);
-     ("saved_tax_collector", Bool);
-     ("invasion_size_start", Int32);
-     ("temp_cultist_delay", Int32);
-     ("_num_npc_killed", Int16);
-     ("npc_kill_count", Array (Int32, Variable));
-     ("fast_forward_time", Bool);
-     ("downed_fishron", Bool);
-     ("downed_martians", Bool);
-     ("downed_ancient_cultist", Bool);
-     ("downed_moonlord", Bool);
-     ("downed_halloween_king", Bool);
-     ("downed_halloween_tree", Bool);
-     ("downed_christmas_ice_queen", Bool);
-     ("downed_christmas_santank", Bool);
-     ("downed_christmas_tree", Bool);
-
-     ("downed_tower_solar", Bool);
-     ("downed_tower_vortex", Bool);
-     ("downed_tower_nebula", Bool);
-     ("downed_tower_stardust", Bool);
-
-     ("tower_active_solar", Bool);
-     ("tower_active_vortex", Bool);
-     ("tower_active_nebula", Bool);
-     ("tower_active_stardust", Bool);
-     ("lunar_apocalypse_is_up", Bool) ]
   in
 
   let header = read_header wld_header_read_seq [] in
@@ -244,7 +243,7 @@ let wld_header_of_fd fd =
 ;;
 
 let wld_header_of_path pathstr = 
-  Log.noticef "Reading world file '%s'\n" pathstr;
+  (*Log.noticef "Reading world file '%s'\n" pathstr;*)
   let open Unix in
   let fd = openfile pathstr [O_RDONLY] 0 in
   let header = wld_header_of_fd fd in
