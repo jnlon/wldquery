@@ -23,7 +23,7 @@ Assuming you are querying the world ID on windows:
 
 You can also query multiple keys. Each value will be printed on its own line:
 
-`wldquery.txt C:\path\to\your\file.wld world_name max_tiles_x max_tiles_y`
+`wldquery.exe C:\path\to\your\file.wld world_name max_tiles_x max_tiles_y`
 
 Output:
 
