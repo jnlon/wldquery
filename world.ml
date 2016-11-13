@@ -261,18 +261,19 @@ let read_header inch : header =
     []
     header_pairs ;;
 
-let print_header_pair p =
+let rec string_of_header_data hd = 
   let open Printf in
   let open Array in
-  let rec string_of_header_data = function
+  match hd with
     | HBool b -> sprintf "%b" b
     | HByte i -> sprintf "%d" i
     | HInt i64 -> sprintf "%Ld" i64
     | HFloat f -> sprintf "%f" f
     | HArray ar -> "[" ^ (String.concat "," (List.map string_of_header_data (to_list ar))) ^ "]"
-    | HString str -> "\"" ^ str ^ "\""
-  in
-  printf "%s: %s\n" (fst p) (string_of_header_data (snd p))
+    | HString str -> "\"" ^ str ^ "\"" ;;
+
+let print_header_pair p =
+  Printf.printf "%s\n" (string_of_header_data (snd p))
 ;;
 
 let read_tiles in_ch = () ;;

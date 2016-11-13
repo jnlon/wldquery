@@ -20,7 +20,7 @@ let main () =
     let keys = List.tl @@ List.tl @@ Array.to_list Sys.argv in
     let header = wld_header_of_path inpath in
     if (List.length keys) = 0 then raise Not_found else begin
-      List.iter (fun key -> World.print_header_pair (key,(assoc key header))) keys
+      List.iter (fun key -> Printf.printf "%s\n" (World.string_of_header_data (assoc key header))) keys
     end
   end
   with Invalid_argument i -> print_usage_exit ()
