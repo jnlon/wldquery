@@ -111,3 +111,12 @@ tower_active_vortex
 tower_active_nebula
 tower_active_stardust
 lunar_apocalypse_is_up
+temp_party_manual
+temp_party_genuine
+temp_party_cooldown
+_num_celebrating
+temp_party_celebrating_npcs
+temp_sandstorm_happening
+temp_sandstorm_time_left
+temp_sandstorm_severity
+temp_sandstorm_intended_severity
