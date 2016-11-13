@@ -270,7 +270,7 @@ let rec string_of_header_data hd =
     | HInt i64 -> sprintf "%Ld" i64
     | HFloat f -> sprintf "%f" f
     | HArray ar -> "[" ^ (String.concat "," (List.map string_of_header_data (to_list ar))) ^ "]"
-    | HString str -> "\"" ^ str ^ "\"" ;;
+    | HString str -> str ;;
 
 let print_header_pair p =
   Printf.printf "%s\n" (string_of_header_data (snd p))
