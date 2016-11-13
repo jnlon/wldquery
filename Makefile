@@ -3,7 +3,7 @@ LIB=unix.cmxa
 OUT:=wldquery
 
 ifeq ($(OS),Windows_NT)
-  OUT += .exe
+  OUT := $(OUT).exe
 endif
 
 all:
