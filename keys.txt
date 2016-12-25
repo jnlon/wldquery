@@ -120,3 +120,7 @@ temp_sandstorm_happening
 temp_sandstorm_time_left
 temp_sandstorm_severity
 temp_sandstorm_intended_severity
+saved_bartender
+dd2_downed_invasion_t1
+dd2_downed_invasion_t2
+dd2_downed_invasion_t3

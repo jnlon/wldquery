@@ -3,7 +3,7 @@ open Extensions.Pervasives ;;
 exception Wld_version_unsupported of string ;;
 exception Read_type_unsupported of string ;;
 exception Unknown_array_size_type of string ;;
-let supported_wld_version = 177;;
+let supported_wld_version = 188;;
 
 type array_size =
   | Static of int (* fixed number of elements *)
@@ -210,7 +210,11 @@ let header_pairs = [
    ("temp_sandstorm_happening", Bool);
    ("temp_sandstorm_time_left", Int32);
    ("temp_sandstorm_severity", Single);
-   ("temp_sandstorm_intended_severity", Single) ] ;;
+   ("temp_sandstorm_intended_severity", Single);
+   ("saved_bartender", Bool);
+   ("dd2_downed_invasion_t1", Bool);
+   ("dd2_downed_invasion_t2", Bool);
+   ("dd2_downed_invasion_t3", Bool)  ] ;;
 
 let sprintf = Printf.sprintf ;;
 let read_header_from_pair in_chan (previously_read : header) pair : header =
